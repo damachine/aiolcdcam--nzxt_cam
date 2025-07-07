@@ -1,0 +1,240 @@
+.TH NZXT 1 "Juli 2025" "nzxt 2.1" "User Commands"
+.SH NAME
+nzxt \- NZXT Kraken LCD Temperature Monitor (Professioneller Modularer C-Daemon)
+.SH SYNOPSIS
+.B nzxt
+[\fIMODE\fR]
+.br
+.B nzxt
+[\fB\-\-mode\fR \fIMODE\fR]
+.br
+.B nzxt
+[\fB\-h\fR|\fB\-\-help\fR]
+.SH DESCRIPTION
+.B nzxt
+ist ein hochperformanter, modularer C-basierter Daemon mit professioneller systemd-Integration, der CPU- und GPU-Temperaturen überwacht und diese grafisch auf dem LCD-Display eines NZXT Kraken Wasserkühlers anzeigt. Das Programm wurde vollständig in modularer C99-Architektur entwickelt für maximale Effizienz, Wartbarkeit und Produktionsstabilität.
+
+Die modulare Architektur trennt CPU-, GPU-, Coolant- und Display-Logik in separate Module. Je nach gewähltem Modus werden nur die erforderlichen Sensordaten abgefragt, was die I/O-Performance erheblich optimiert (def-Modus nutzt nur Temperatursensoren, Modi 1-3 zusätzlich Auslastungsdaten).
+
+Das Programm kommuniziert über die native CoolerControl REST-API mit dem Kraken-Gerät ohne Python-Abhängigkeiten und bietet detaillierte systemd-Logs für professionelles Service-Management.
+
+.SH ARCHITEKTUR
+Das Programm folgt der Standard C-Projektstruktur:
+.TP
+.I src/
+Quellcode-Dateien (.c)
+.TP
+.I include/
+Header-Dateien (.h) und zentrale Konfiguration
+.TP
+.I build/
+Kompilierte Objektdateien (.o)
+.TP
+.I src/main.c
+Daemon-Management und Sensor-Koordination
+.TP
+.I include/config.h
+Zentrale Konfiguration (UUID, Pfade, Farben, Layout)
+.TP
+.I src/cpu_monitor.c
+CPU-Temperatur, CPU-Auslastung und RAM-Monitoring
+.TP
+.I src/gpu_monitor.c
+GPU-Temperatur und GPU-Auslastung (NVIDIA)
+.TP
+.I src/coolant_monitor.c
+Coolant-Temperatur-Überwachung
+.TP
+.I src/display.c
+Rendering-Engine, Modi-Logik und Cairo-Grafiken
+.TP
+.I src/coolercontrol.c
+REST-API-Kommunikation und Session-Management
+
+.SH OPTIONS
+.TP
+.I MODE
+Setzt den Anzeigemodus für das LCD-Display. Verfügbare Modi:
+.RS
+.TP
+.B def
+Standard-Modus (nur Temperaturen) - Minimaler I/O, keine Auslastungsdaten
+.TP
+.B 1
+Temperaturen + vertikale Auslastungsbalken
+.TP
+.B 2
+Temperaturen + Kreisdiagramme für Auslastung
+.TP
+.B 3
+Temperaturen + horizontale Auslastungsbalken
+.RE
+.TP
+.BR \-h ", " \-\-help
+Zeigt Hilfe-Informationen und Verwendungsbeispiele an
+.SH FILES
+.TP
+.I /opt/nzxt_cam/nzxt
+Hauptprogramm
+.TP
+.I /opt/nzxt_cam/image/cpu_gpu_temp.png
+Generiertes Temperaturbild
+.TP
+.I /etc/systemd/system/nzxt-cam.service
+Systemd Service-Datei
+.TP
+.I /tmp/nzxt_cam.pid
+PID-Datei für Prozessverwaltung
+.SH EXAMPLES
+.TP
+Programm im Standard-Modus starten (nur Temperaturen):
+.B nzxt def
+.TP
+Programm mit vertikalen Auslastungsbalken starten:
+.B nzxt 1
+.TP
+Programm mit Kreisdiagrammen starten:
+.B nzxt 2
+.TP
+Programm mit horizontalen Auslastungsbalken starten:
+.B nzxt 3
+.TP
+Hilfe anzeigen:
+.B nzxt --help
+.TP
+Service-Management:
+.B sudo systemctl start nzxt-cam
+.br
+.B sudo systemctl status nzxt-cam
+.br
+.B journalctl -u nzxt-cam -f
+
+.SH SYSTEMD INTEGRATION
+Das Programm bietet professionelle systemd-Integration mit detaillierten Logs:
+.TP
+.B Service-Installation
+.B sudo make install
+.br
+Installiert automatisch den Service und startet ihn neu bei Updates.
+.TP
+.B Service-Management
+.B sudo systemctl enable nzxt-cam
+.br
+.B sudo systemctl start nzxt-cam
+.br
+.B sudo systemctl status nzxt-cam
+.TP
+.B Detaillierte Logs
+.B journalctl -u nzxt-cam --since "10 minutes ago"
+.br
+Zeigt Modul-Initialisierung, CoolerControl-Verbindung und Betriebsstatus.
+.TP
+.B Makefile Service-Shortcuts
+.B make start, make stop, make restart, make status, make logs
+
+.SH PERFORMANCE-OPTIMIERUNGEN
+Das modulare Design bietet folgende Performance-Vorteile:
+.TP
+.B I/O-Optimierung nach Modus
+Modus "def" liest nur Temperatursensoren für minimalen I/O.
+Modi 1-3 lesen zusätzlich Auslastungsdaten mit intelligentem Caching.
+.TP
+.B Sensordaten-Caching
+CPU/Coolant: hwmon-Pfade werden beim Start gecacht.
+GPU: 2-Sekunden-Cache mit nvidia-smi.
+CPU-Auslastung: Stateful zwischen Messungen.
+.TP
+.B Änderungserkennung
+Display-Updates nur bei signifikanten Änderungen (0.1°C für Temperaturen, 0.5% für Auslastung).
+
+.SH KONFIGURATION
+Alle wichtigen Einstellungen befinden sich in der Build-Zeit-Konfiguration:
+.TP
+.I Device-UID
+NZXT Kraken-Geräte-Identifikation
+.TP
+.I Display-Einstellungen
+Auflösung, Update-Intervalle, Layout-Parameter
+.TP
+.I Temperaturschwellen
+Farbverlauf-Schwellenwerte für grün/orange/rot
+.TP
+.I Cache-Intervalle
+Optimierung der Sensor-Abfrage-Häufigkeit
+Service starten:
+.B systemctl start nzxt-cam
+.SH DEPENDENCIES
+Das Programm benötigt folgende Komponenten:
+.TP
+.B CoolerControl
+Muss installiert und gestartet sein (coolercontrold.service)
+.TP
+.B NVIDIA-SMI
+Für GPU-Temperaturmessung (bei NVIDIA-Grafikkarten)
+.TP
+.B Cairo-Bibliothek
+Für Bildgenerierung
+.TP
+.B cURL
+Für REST-API-Kommunikation
+.SH COMPILATION
+Das Programm wird mit folgenden Compiler-Flags und Bibliotheken erstellt:
+.TP
+.B Compiler-Flags:
+\-Wall \-Wextra \-O2 \-std=c99 \-march=x86-64-v3 plus Cairo-spezifische Includes
+.TP
+.B x86-64-v3 Optimierung:
+Kompiliert für moderne CPUs (Intel Haswell+/AMD Excavator+, 2013+) mit erweiterten Instruction Sets (AVX2, BMI1/2, FMA)
+.TP
+.B Bibliotheken:
+libcairo, libcurl, libm (Mathematik-Bibliothek)
+.TP
+.B Build-Befehl:
+.B make
+(verwendet automatisch x86-64-v3 Optimierung)
+.SH PERFORMANCE
+Das Programm ist für minimalen Ressourcenverbrauch optimiert:
+.TP
+.B Sensor-Caching
+Hwmon-Pfade werden beim Start einmalig ermittelt und gecacht
+.TP
+.B GPU-Data Caching
+GPU-Daten werden nur alle 2 Sekunden aktualisiert
+.TP
+.B Änderungserkennung
+PNG wird nur bei signifikanten Temperatur-/Auslastungsänderungen neu generiert
+.SH CONFIGURATION
+Das Programm liest Temperaturen aus:
+.TP
+.I /sys/class/hwmon/*/temp*_input
+CPU- und Coolant-Temperaturen
+.TP
+.B nvidia-smi
+GPU-Temperatur und -Auslastung
+.TP
+.I /proc/stat
+CPU-Auslastung
+.TP
+.I /proc/meminfo
+RAM-Auslastung
+.SH SIGNALS
+.TP
+.B SIGTERM, SIGINT
+Beendet das Programm ordnungsgemäß
+.SH EXIT STATUS
+.TP
+.B 0
+Erfolgreich beendet
+.TP
+.B 1
+Fehler bei Argumentverarbeitung
+.SH BUGS
+Melden Sie Bugs an: damachine@example.com
+.SH AUTHOR
+Geschrieben von damachine.
+.SH SEE ALSO
+.BR systemctl (1),
+.BR coolercontrol (1),
+.BR nvidia-smi (1)
+.SH COPYRIGHT
+Copyright © 2025 damachine. Dies ist freie Software; siehe Quelle für Kopierbedingungen.
