@@ -1,6 +1,6 @@
-# NZXT CAM - Professional Modular C Daemon
+# NZXT LCD CAM - Modular C Daemon
 
-High-performance, modular C-based daemon for NZXT Kraken LCD Temperature Monitor with professional systemd integration.
+High-performance, modular C-based daemon for NZXT Kraken LCD Display with professional systemd integration.
 
 **📖 Languages / Sprachen / 语言:**
 - **🇺🇸 English**: README.md (this file)
