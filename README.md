@@ -1,6 +1,15 @@
-# NZXT LCD CAM - Modular C Daemon
+# LCD AIO CAM - Modular C Daemon
 
-High-performance, modular C-based daemon for NZXT Kraken LCD Display with professional systemd integration.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![C99](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
+[![Platform](https://img.shields.io/badge/Platform-Linux-green.svg)](https://kernel.org/)
+[![Development Status](https://img.shields.io/badge/Status-Beta-orange.svg)](https://github.com)
+
+High-performance, modular C-based daemon for LCD AIO displays with professional systemd integration and automatic dependency management.
+
+> **⚠️ Beta Notice:** This project is in early development stage. Features may change and bugs are expected. Please report issues and contribute to improve the software.
+
+**👨‍💻 Author:** DAMACHINE ([christkue79@gmail.com](mailto:christkue79@gmail.com))
 
 **📖 Languages / Sprachen / 语言:**
 - **🇺🇸 English**: README.md (this file)
@@ -17,61 +26,121 @@ High-performance, modular C-based daemon for NZXT Kraken LCD Display with profes
 - **✅ Native CoolerControl Integration**: REST API communication without Python dependencies
 - **✅ Systemd Logs**: Detailed initialization and status messages for professional service management
 - **✅ Intelligent Installation**: Automatic service stop/start during updates via `make install`
+- **🚧 Beta Features**: Active development with regular improvements and bug fixes
 
-## 🏗️ Standard C Project Structure
+## 📑 Table of Contents
 
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📋 System Requirements](#-system-requirements)
+- [📦 Installation & Dependencies](#-installation--dependencies)
+- [⚙️ Service Management](#️-service-management)
+- [📱 Display Modes & Usage](#-display-modes--usage)
+- [🔧 Configuration](#-configuration)
+- [🛠️ Development & Build](#️-development--build)
+- [🏗️ Project Structure](#️-project-structure)
+- [🎯 Performance Optimizations](#-performance-optimizations)
+- [🎨 Customization](#-customization)
+- [🔍 Debugging](#-debugging)
+- [📄 License](#-license)
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+1. **Install CoolerControl first**: [Installation Guide](https://gitlab.com/coolercontrol/coolercontrol/-/blob/main/README.md)
+2. **Start CoolerControl daemon**: `sudo systemctl start coolercontrold`
+3. **Configure your LCD AIO** in CoolerControl GUI
+
+### Install LCD AIO CAM
+
+```bash
+# One-command installation (auto-detects Linux distribution and installs dependencies)
+git clone https://github.com/damachine/aiolcdcam.git
+cd aiolcdcam
+sudo make install
+
+# Enable autostart and start service
+sudo systemctl enable aiolcdcam.service
+sudo systemctl start aiolcdcam.service
+
+# Check status
+systemctl status aiolcdcam
 ```
-nzxt_cam/
-├── src/                    # 📁 Source code files (.c)
-│   ├── main.c              # 🎯 Main program (daemon management, sensor coordination)
-│   ├── cpu_monitor.c       # 🔥 CPU temperature, CPU load, RAM monitoring
-│   ├── gpu_monitor.c       # 🎮 GPU temperature, GPU load (NVIDIA)
-│   ├── coolant_monitor.c   # 💧 Coolant temperature monitoring
-│   ├── display.c           # 🖼️ Rendering engine, mode logic, Cairo graphics
-│   └── coolercontrol.c     # 🌐 REST API communication, session management
-├── include/                # 📁 Header files (.h)
-│   ├── config.h            # ⚙️ Central configuration (UUID, paths, colors, layout)
-│   ├── cpu_monitor.h       # 🔥 CPU monitor interface
-│   ├── gpu_monitor.h       # 🎮 GPU monitor interface
-│   ├── coolant_monitor.h   # 💧 Coolant monitor interface
-│   ├── display.h           # 🖼️ Display engine interface
-│   └── coolercontrol.h     # 🌐 CoolerControl API interface
-├── build/                  # 📁 Compiled object files (.o)
-├── legacy/                 # 📁 Legacy version
-│   └── nzxt.c              # 🔄 Original single-file implementation
-├── docs/                   # 📁 Documentation
-│   ├── README.md           # 📖 English documentation (main)
-│   ├── README_DE.md        # 📖 German documentation
-│   ├── README_ZH.md        # 📖 Chinese documentation
-│   └── nzxt.1              # 📖 Manual page
-├── systemd/                # 📁 systemd service integration
-│   └── nzxt-cam.service    # 🔧 Service file
-└── Makefile                # 🔨 Build system with auto-dependency installation
+
+> **ℹ️ Note:** The compiled binary is named `aiolcdcam`, and the systemd service is now also `aiolcdcam.service` for consistency.
+
+### Verify Setup
+
+```bash
+# Check CoolerControl API
+curl http://localhost:11987/devices
+
+# Check LCD AIO CAM logs
+sudo journalctl -u aiolcdcam.service -f
 ```
 
-## 🚀 Installation & Build
+## 📋 System Requirements
+
+### Essential Requirements
+
+- **OS**: Linux (hwmon support required)
+- **🌐 CoolerControl**: **REQUIRED** - [CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) daemon must be installed and running
+  - Provides REST API for LCD AIO communication
+  - Version 1.0+ recommended
+  - Must be configured with your LCD AIO device
+- **CPU**: x86-64-v3 compatible (Intel Haswell+ / AMD Excavator+, 2013+)
+- **LCD**: LCD AIO displays supported by CoolerControl (NZXT Kraken, etc.)
+
+### Hardware & Performance
+
+- **Sensors**: hwmon temperature sensors for CPU
+- **GPU**: NVIDIA (optional, for GPU data via nvidia-smi)
+- **RAM**: < 5 MB (very efficient)
+- **CPU Load**: < 1% (def mode), < 2% (modes 1-3)
+
+### Software Dependencies (Auto-Installed)
+
+- **cairo**: Graphics rendering library
+- **libcurl**: HTTP client for CoolerControl API
+- **systemd**: Service management (for daemon integration)
+- **pkg-config**: Build dependency detection
+- **gcc**: C compiler
+
+### CoolerControl Setup
+
+1. **Install CoolerControl**: Follow [installation guide](https://gitlab.com/coolercontrol/coolercontrol/-/blob/main/README.md)
+2. **Start CoolerControl daemon**: `sudo systemctl start coolercontrold`
+3. **Configure your LCD AIO**: Use CoolerControl GUI to detect and configure your device
+4. **Verify API access**: `curl http://localhost:11987/devices` should return your devices
+
+**x86-64-v3 compatibility:**
+- **Intel**: Haswell (2013) and newer
+- **AMD**: Excavator (2015) and newer  
+- Older CPUs: Use `CFLAGS=-march=x86-64` for compatibility
+
+## 📦 Installation & Dependencies
 
 ### One-Command Installation
 
-**🆕 NEW**: `make install` now automatically installs all dependencies for any Linux distribution!
+**🆕 NEW**: `make install` automatically installs all dependencies for any Linux distribution!
 
 ```bash
 # Complete installation in one command (auto-detects Linux distribution)
 sudo make install
-
-# This automatically:
-# 1. Detects your Linux distribution (Arch, Ubuntu, Debian, Fedora, RHEL, openSUSE)
-# 2. Checks for missing dependencies (cairo, libcurl, gcc, make, pkg-config)
-# 3. Auto-installs missing dependencies using your distribution's package manager
-# 4. Builds the program (modern + legacy versions)
-# 5. Installs to /opt/nzxt_cam/
-# 6. Configures systemd service
-# 7. Starts/restarts the service
 ```
 
-### Dependencies (Auto-Installed)
+**This automatically:**
+1. Detects your Linux distribution (Arch, Ubuntu, Debian, Fedora, RHEL, openSUSE)
+2. Checks for missing dependencies (cairo, libcurl, gcc, make, pkg-config)
+3. Auto-installs missing dependencies using your distribution's package manager
+4. Builds the program
+5. Installs to `/opt/aiolcdcam/`
+6. Configures systemd service
+7. Starts/restarts the service
 
-**Supported distributions** (auto-detected and installed by `make install`):
+### Supported Distributions (Auto-Detected)
+
 - **Arch Linux / Manjaro**: `pacman -S cairo libcurl-gnutls gcc make pkg-config`
 - **Ubuntu / Debian**: `apt install libcairo2-dev libcurl4-openssl-dev gcc make pkg-config`
 - **Fedora**: `dnf install cairo-devel libcurl-devel gcc make pkg-config`
@@ -89,73 +158,46 @@ make clean && make
 
 # Debug build
 make debug
-
-# Check dependencies before building
-make check-deps
 ```
 
-**Note**: The `make` command now automatically builds both the modern modular version (`nzxt`) and the legacy single-file version (`nzxt_legacy`) from `legacy/nzxt.c`.
-
-**Build output with performance optimization:**
-```
-🔨 Compiling module: src/cpu_monitor.c
-🔨 Compiling module: src/gpu_monitor.c
-🔨 Compiling nzxt (Standard C structure)...
-CFLAGS: -Wall -Wextra -O2 -std=c99 -march=x86-64-v3 -Iinclude
-LIBS: -lcairo -lcurl -lm
-✅ Standard C build successful: nzxt
-⚠️ Building legacy version (legacy/nzxt.c)...
-✅ Legacy build: nzxt_legacy
-```
-
-**Performance benefits of x86-64-v3:**
-- Extended CPU instructions (BMI1, BMI2, F16C, FMA, LZCNT, MOVBE, XSAVE)
-- Optimized floating-point operations for Cairo graphics
-- Better vectorization for sensor data processing
-- ~10-15% performance improvement in graphical rendering
-
-### Installation
+## ⚙️ Service Management
 
 ```bash
-# Complete system installation (auto-installs dependencies + configures service)
-sudo make install
+# Enable autostart at boot
+sudo systemctl enable aiolcdcam.service
 
-# Output example:
-#   📦 NZXT CAM INSTALLATION
-#   ⚠️ Missing dependencies detected: cairo libcurl
-#   � Installing dependencies for Arch Linux/Manjaro...
-#   ✅ Dependencies installed successfully!
-#   ⚙️ Checking running service and processes...
-#   → Service stopped
-#   ℹ️ Creating directories...
-#   ℹ️ Copying files...
-#   ⚙️ Installing service & documentation...
-#   ⚙️ Restarting service...
-#   ✅ INSTALLATION SUCCESSFUL
+# Service control
+sudo systemctl start aiolcdcam.service     # Start
+sudo systemctl stop aiolcdcam.service      # Stop (displays face.png automatically)
+sudo systemctl restart aiolcdcam.service   # Restart
+sudo systemctl status aiolcdcam.service    # Status + recent logs
 
-# Enable autostart (optional)
-sudo systemctl enable nzxt-cam
+# Live logs
+sudo journalctl -u aiolcdcam.service -f
 
-# Check status
-systemctl status nzxt-cam
+# Makefile shortcuts
+make start      # systemctl start aiolcdcam
+make stop       # systemctl stop aiolcdcam
+make status     # systemctl status aiolcdcam
+make logs       # journalctl -u aiolcdcam -f
 ```
 
-**Systemd service logs show:**
+**Service logs show:**
 ```
-Jul 06 03:06:43 computer nzxt-cam[72998]: Selected mode: def (temperatures only, resource-efficient)
-Jul 06 03:06:43 computer nzxt-cam[72998]: Initializing modules...
-Jul 06 03:06:43 computer nzxt-cam[72998]: ✓ CPU monitor initialized
-Jul 06 03:06:43 computer nzxt-cam[72998]: ✓ GPU monitor initialized
-Jul 06 03:06:43 computer nzxt-cam[72998]: ✓ Coolant monitor initialized
-Jul 06 03:06:43 computer nzxt-cam[72998]: ✓ CoolerControl session initialized
-Jul 06 03:06:43 computer nzxt-cam[72998]: CoolerControl: Connected to Kraken LCD
-Jul 06 03:06:43 computer nzxt-cam[72998]: All modules successfully initialized!
-Jul 06 03:06:43 computer nzxt-cam[72998]: NZXT CAM daemon started (Mode: 0)
-Jul 06 03:06:43 computer nzxt-cam[72998]: Sensor data updated every 2.5 seconds
-Jul 06 03:06:43 computer nzxt-cam[72998]: Daemon now running silently in background...
+Jul 06 03:06:43 computer aiolcdcam[72998]: Selected mode: def (temperatures only, resource-efficient)
+Jul 06 03:06:43 computer aiolcdcam[72998]: Initializing modules...
+Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ CPU monitor initialized
+Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ GPU monitor initialized
+Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ Coolant monitor initialized
+Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ CoolerControl session initialized
+Jul 06 03:06:43 computer aiolcdcam[72998]: CoolerControl: Connected to Kraken LCD
+Jul 06 03:06:43 computer aiolcdcam[72998]: All modules successfully initialized!
+Jul 06 03:06:43 computer aiolcdcam[72998]: LCD AIO CAM daemon started (Mode: 0)
+Jul 06 03:06:43 computer aiolcdcam[72998]: Sensor data updated every 2.5 seconds
+Jul 06 03:06:43 computer aiolcdcam[72998]: Daemon now running silently in background...
 ```
 
-## 📱 Modes
+## � Display Modes & Usage
 
 | Mode | Description | I/O Optimization | Sensor Data |
 |------|-------------|------------------|-------------|
@@ -164,40 +206,35 @@ Jul 06 03:06:43 computer nzxt-cam[72998]: Daemon now running silently in backgro
 | `2`   | Temperatures + circular diagrams | CPU/GPU/RAM load | All sensors + CPU/RAM/GPU load |
 | `3`   | Temperatures + horizontal load bars | CPU/GPU/RAM load | All sensors + CPU/RAM/GPU load |
 
-### Usage
+### Usage Examples
 
 ```bash
-# Modern version (modular, recommended)
-./nzxt def      # Temperatures only (default, minimal I/O)
-./nzxt 1        # Vertical bars
-./nzxt 2        # Circular diagrams  
-./nzxt 3        # Horizontal bars
+# Modern version (modular, recommended) - Binary: aiolcdcam
+./aiolcdcam def      # Temperatures only (default, minimal I/O)
+./aiolcdcam 1        # Vertical bars
+./aiolcdcam 2        # Circular diagrams  
+./aiolcdcam 3        # Horizontal bars
 
-# Legacy version (single-file implementation)
-./nzxt_legacy def
-./nzxt_legacy 1
+# Alternative builds
+make debug    # Debug version with AddressSanitizer
 
 # Alternative --mode syntax (modern version)
-./nzxt --mode def
-./nzxt --mode 2
+./aiolcdcam --mode def
+./aiolcdcam --mode 2
 
-# As systemd service (uses modern version)
-sudo systemctl start nzxt-cam
-sudo systemctl status nzxt-cam  # Shows detailed initialization logs
-
-# Show live logs
-sudo journalctl -u nzxt-cam.service -f
+# As systemd service (uses modern aiolcdcam binary)
+sudo systemctl start aiolcdcam.service
+sudo systemctl status aiolcdcam.service  # Shows detailed initialization logs
 
 # Installed versions (after make install)
-/opt/nzxt_cam/nzxt def                    # Modern version
-/opt/nzxt_cam/legacy/nzxt_legacy def      # Legacy version
+/opt/aiolcdcam/bin/aiolcdcam def           # Standard version
 ```
 
 **Resource efficiency by mode:**
 - **Mode "def"**: ~3.4MB RAM, minimal CPU load, temperature sensors only
 - **Modes 1-3**: ~3.5MB RAM, additional CPU/GPU load queries
 
-## ⚙️ Configuration
+## 🔧 Configuration
 
 All important settings are located in **`include/config.h`**:
 
@@ -223,7 +260,78 @@ All important settings are located in **`include/config.h`**:
 #define CHANGE_TOLERANCE_USAGE 0.5f
 ```
 
-## 🎯 Performance Optimizations
+## 🛠️ Development & Build
+
+### Build Targets
+
+```bash
+make          # Standard C build
+make clean    # Clean up (deletes build/ directory)
+make install  # System installation
+make debug    # Debug build with AddressSanitizer
+make help     # Show all options
+```
+
+### Adding New Modules
+
+1. Create header: `include/new_module.h`
+2. Implementation: `src/new_module.c`
+3. Include in `src/main.c`: `#include "new_module.h"`
+4. Extend Makefile `MODULES`: `$(SRCDIR)/new_module.c`
+
+**Example:**
+```bash
+# Create header file
+echo '#ifndef NEW_MODULE_H\n#define NEW_MODULE_H\nvoid new_function(void);\n#endif' > include/new_module.h
+
+# Create source file
+echo '#include "new_module.h"\nvoid new_function(void) { /* Implementation */ }' > src/new_module.c
+```
+
+## 🏗️ Project Structure
+
+```
+aiolcdcam/
+├── src/                    # 📁 Source code files (.c)
+│   ├── main.c              # 🎯 Main program (daemon management, sensor coordination)
+│   ├── cpu_monitor.c       # 🔥 CPU temperature, CPU load, RAM monitoring
+│   ├── gpu_monitor.c       # 🎮 GPU temperature, GPU load (NVIDIA)
+│   ├── coolant_monitor.c   # 💧 Coolant temperature monitoring
+│   ├── display.c           # 🖼️ Rendering engine, mode logic, Cairo graphics
+│   └── coolercontrol.c     # 🌐 REST API communication, session management
+├── include/                # 📁 Header files (.h)
+│   ├── config.h            # ⚙️ Central configuration (UUID, paths, colors, layout)
+│   ├── cpu_monitor.h       # 🔥 CPU monitor interface
+│   ├── gpu_monitor.h       # 🎮 GPU monitor interface
+│   ├── coolant_monitor.h   # 💧 Coolant monitor interface
+│   ├── display.h           # 🖼️ Display engine interface
+│   └── coolercontrol.h     # 🌐 CoolerControl API interface
+├── build/                  # 📁 Compiled object files (.o)
+├── man/                    # 📁 Documentation
+│   └── aiolcdcam.1         # � Manual page
+├── docs/                   # 📁 Documentation
+│   ├── README.md           # 📖 English documentation (main)
+│   ├── README_DE.md        # 📖 German documentation
+│   ├── README_ZH.md        # 📖 Chinese documentation
+│   └── aiolcdcam.1         # 📖 Manual page
+├── systemd/                # 📁 systemd service integration
+│   └── aiolcdcam.service   # 🔧 Service file
+└── Makefile                # 🔨 Build system with auto-dependency installation
+```
+
+### Features
+
+- **✅ Modular Architecture**: Professional separation of CPU, GPU, coolant, and display logic into separate modules
+- **✅ Efficient Sensor Polling**: Only necessary sensor data is queried depending on mode (def = temperatures only, 1-3 = additional load data)
+- **✅ Central Configuration**: All settings (UUID, paths, colors, layout) in `include/config.h`
+- **✅ 4 Optimized Display Modes**: From simple temperatures to complex load diagrams
+- **✅ Performance-Optimized**: Caching, change detection, minimal I/O operations, mode-dependent resource usage
+- **✅ Native CoolerControl Integration**: REST API communication without Python dependencies
+- **✅ Systemd Logs**: Detailed initialization and status messages for professional service management
+- **✅ Intelligent Installation**: Automatic service stop/start during updates via `make install`
+- **🚧 Beta Features**: Active development with regular improvements and bug fixes
+
+## � Performance Optimizations
 
 ### ✅ Mode-dependent I/O optimization
 
@@ -277,98 +385,9 @@ const int needs_update = (
 - **Central configuration**: All constants in `include/config.h`
 - **Header dependencies**: Clean include structure without circular dependencies
 
-## 🛠️ Development
-
-### Adding modules
-
-1. Create header: `include/new_module.h`
-2. Implementation: `src/new_module.c`
-3. Include in `src/main.c`: `#include "new_module.h"`
-4. Extend Makefile `MODULES`: `$(SRCDIR)/new_module.c`
-
-**Example for new module:**
-```bash
-# Create header file
-echo '#ifndef NEW_MODULE_H\n#define NEW_MODULE_H\nvoid new_function(void);\n#endif' > include/new_module.h
-
-# Create source file
-echo '#include "new_module.h"\nvoid new_function(void) { /* Implementation */ }' > src/new_module.c
-
-# Adjust Makefile
-# MODULES = $(SRCDIR)/cpu_monitor.c ... $(SRCDIR)/new_module.c
-```
-
-### Build targets
-
-```bash
-make          # Standard C build (modern + legacy versions)
-make clean    # Clean up (deletes build/ directory)
-make install  # System installation
-make start    # Start service
-make help     # Show all options
-```
-
-**Directory structure after build:**
-```
-nzxt_cam/
-├── src/           # Source code (.c)
-├── include/       # Headers (.h)  
-├── build/         # Object files (.o)
-├── nzxt           # Executable file
-└── ...
-```
-
-## 📊 Professional Systemd Integration
-
-```bash
-# Service management with detailed logs
-sudo systemctl enable nzxt-cam    # Auto-start at boot
-sudo systemctl start nzxt-cam     # Start immediately
-sudo systemctl stop nzxt-cam      # Stop
-sudo systemctl restart nzxt-cam   # Restart
-sudo systemctl status nzxt-cam    # Status + recent logs
-
-# Detailed live logs (shows initialization and operation)
-journalctl -u nzxt-cam -f
-
-# Logs from last 10 minutes
-journalctl -u nzxt-cam --since "10 minutes ago"
-```
-
-**What the logs show:**
-- ✅ Selected mode and optimization strategy
-- ✅ Module-by-module initialization
-- ✅ CoolerControl session status
-- ✅ Refresh interval and operating mode
-- ✅ Error diagnosis for problems
-
-**Makefile service integration:**
-```bash
-# All service commands available as Make targets
-make start      # systemctl start nzxt-cam
-make stop       # systemctl stop nzxt-cam  
-make restart    # systemctl restart nzxt-cam
-make status     # systemctl status nzxt-cam
-make logs       # journalctl -u nzxt-cam -f
-```
-
-## 🔍 Debugging
-
-```bash
-# Start manually (foreground)
-./nzxt def
-
-# With debug information
-make debug && ./nzxt def
-
-# Session check
-systemctl status coolercontrold
-curl http://localhost:11987/devices
-```
-
 ## 🎨 Customization
 
-### Adjusting colors
+### Adjusting Colors
 
 In `include/config.h`:
 
@@ -384,7 +403,7 @@ In `include/config.h`:
 #define COLOR_CPU_USAGE_B 1.0
 ```
 
-### Adjusting layout
+### Adjusting Layout
 
 ```c
 // Display size
@@ -400,21 +419,28 @@ In `include/config.h`:
 #define FONT_SIZE_LABELS 22.0
 ```
 
-## 📋 System Requirements
+## 🔍 Debugging
 
-- **OS**: Linux (hwmon support required)
-- **CPU**: x86-64-v3 compatible (Intel Haswell+ / AMD Excavator+, 2013+)
-- **Sensors**: hwmon temperature sensors for CPU
-- **GPU**: NVIDIA (optional, for GPU data)
-- **LCD**: NZXT Kraken with CoolerControl support
-- **RAM**: < 5 MB (very efficient)
-- **CPU Load**: < 1% (def mode), < 2% (modes 1-3)
-- **Dependencies**: cairo, libcurl, systemd (for service integration)
+```bash
+# Check CoolerControl status first
+systemctl status coolercontrold
+curl http://localhost:11987/devices
 
-**x86-64-v3 compatibility:**
-- **Intel**: Haswell (2013) and newer
-- **AMD**: Excavator (2015) and newer  
-- Older CPUs: Use `CFLAGS=-march=x86-64` for compatibility
+# Start LCD AIO CAM manually (foreground)
+./aiolcdcam def
+
+# With debug information
+make debug && ./aiolcdcam def
+
+# Check CoolerControl API response
+curl http://localhost:11987/devices | jq
+```
+
+### Common Issues
+
+- **"Connection refused"**: CoolerControl daemon not running → `sudo systemctl start coolercontrold`
+- **"Device not found"**: LCD AIO not configured in CoolerControl → Use CoolerControl GUI
+- **"Permission denied"**: Run with appropriate permissions → `sudo ./aiolcdcam def`
 
 ## 📄 License
 
@@ -422,4 +448,5 @@ MIT License - See LICENSE file for details.
 
 ---
 
-**Developed for maximum efficiency, stability and professional code structure.**
+**👨‍💻 Developed by DAMACHINE for maximum efficiency, stability and professional code structure.**  
+**📧 Contact:** [christkue79@gmail.com](mailto:christkue79@gmail.com)

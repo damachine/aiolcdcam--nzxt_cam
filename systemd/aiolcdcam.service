@@ -1,6 +1,6 @@
 [Unit]
-Description=NZXT Kraken LCD Temperature Monitor
-Documentation=man:nzxt(1)
+Description=LCD AIO CAM Temperature Monitor
+Documentation=man:aiolcdcam(1)
 After=network.target coolercontrold.service
 Wants=coolercontrold.service
 Requires=coolercontrold.service
@@ -8,7 +8,7 @@ Requires=coolercontrold.service
 [Service]
 Type=simple
 ExecStartPre=/bin/sleep 10
-ExecStart=/opt/nzxt_cam/nzxt --mode def
+ExecStart=/opt/aiolcdcam/bin/aiolcdcam --mode def
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5
@@ -19,7 +19,7 @@ Group=root
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/nzxt_cam/image /tmp
+ReadWritePaths=/opt/aiolcdcam/image /tmp
 PrivateTmp=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
@@ -28,7 +28,7 @@ ProtectControlGroups=true
 # Logging
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=nzxt-cam
+SyslogIdentifier=aiolcdcam
 
 [Install]
 WantedBy=multi-user.target

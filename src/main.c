@@ -11,15 +11,15 @@
 #include <errno.h>
 
 /**
- * NZXT CAM - Hauptprogramm
- * ========================
+ * LCD AIO CAM - Hauptprogramm
+ * ===========================
  * 
  * Professioneller, modularer C-Daemon für NZXT Kraken LCD Temperature Monitor.
  * Zeigt CPU/GPU-Temperaturen und optional Auslastungsdaten auf dem LCD-Display an.
  * 
  * Kompiliert mit: make
  * Oder manuell: gcc -Wall -Wextra -O2 -std=c99 main.c cpu_monitor.c gpu_monitor.c 
- *               coolant_monitor.c display.c coolercontrol.c -o nzxt -lcairo -lcurl -lm
+ *               coolant_monitor.c display.c coolercontrol.c -o aiolcdcam -lcairo -lcurl -lm
  * 
  * Modi:
  *   def - Nur Temperaturen (CPU, GPU, Coolant)
@@ -28,7 +28,7 @@
  *   3   - Temperaturen + horizontale Auslastungsbalken
  *
  * Single-Instance-Enforcement:
- *   - Nur eine Instanz von nzxt kann gleichzeitig laufen
+ *   - Nur eine Instanz von aiolcdcam kann gleichzeitig laufen
  *   - Bei manuellem Start: Fehler wenn systemd Service läuft
  *   - Bei systemd Start: Beendet vorherige manuelle Instanzen
  *   - PID-Datei koordiniert die Instanzverwaltung
@@ -55,15 +55,15 @@ static void cleanup_and_exit(int sig) {
     
     // Sende Shutdown-Image nur einmal
     if (!shutdown_sent && is_session_initialized()) {
-        const char* shutdown_image = "/opt/nzxt_cam/image/face.png";
-        printf("NZXT CAM: Sending shutdown image to Kraken LCD...\n");
+        const char* shutdown_image = "/opt/aiolcdcam/image/face.png";
+        printf("LCD AIO CAM: Sending shutdown image to Kraken LCD...\n");
         fflush(stdout);
         
         if (send_image_to_lcd(shutdown_image, KRAKEN_UID)) {
-            printf("NZXT CAM: Shutdown image sent successfully\n");
+            printf("LCD AIO CAM: Shutdown image sent successfully\n");
             shutdown_sent = 1; // Flag setzen, damit es nur einmal gesendet wird
         } else {
-            printf("NZXT CAM: Warning - Could not send shutdown image\n");
+            printf("LCD AIO CAM: Warning - Could not send shutdown image\n");
         }
         fflush(stdout);
     }
@@ -108,8 +108,8 @@ static int check_existing_instance_and_handle(const char *pid_file, int is_servi
     if (cmdline_f) {
         char cmdline[512] = {0};
         if (fread(cmdline, 1, sizeof(cmdline)-1, cmdline_f) > 0) {
-            // Prüfe ob es von systemd gestartet wurde (enthält /opt/nzxt_cam/nzxt)
-            if (strstr(cmdline, "/opt/nzxt_cam/nzxt") != NULL) {
+            // Prüfe ob es von systemd gestartet wurde (enthält /opt/aiolcdcam/bin/aiolcdcam)
+            if (strstr(cmdline, "/opt/aiolcdcam/bin/aiolcdcam") != NULL) {
                 is_existing_service = 1;
             }
         }
@@ -118,7 +118,7 @@ static int check_existing_instance_and_handle(const char *pid_file, int is_servi
     
     if (is_service_start) {
         // systemd Service startet: Beende immer vorherige Instanz
-        printf("NZXT CAM: Service starting, terminating existing instance (PID %d)...\n", old_pid);
+        printf("LCD AIO CAM: Service starting, terminating existing instance (PID %d)...\n", old_pid);
         kill(old_pid, SIGTERM);
         
         // Warte auf saubere Beendigung
@@ -129,24 +129,24 @@ static int check_existing_instance_and_handle(const char *pid_file, int is_servi
         
         // Falls immer noch aktiv, erzwinge Beendigung
         if (kill(old_pid, 0) == 0) {
-            printf("NZXT CAM: Force-killing stubborn instance...\n");
+            printf("LCD AIO CAM: Force-killing stubborn instance...\n");
             kill(old_pid, SIGKILL);
             sleep(1);
         }
         
-        printf("NZXT CAM: Previous instance terminated successfully\n");
+        printf("LCD AIO CAM: Previous instance terminated successfully\n");
         unlink(pid_file);
         return 0;
     } else {
         // Manueller Start: Prüfe ob Service läuft
         if (is_existing_service) {
-            printf("NZXT CAM: Error - systemd service is already running (PID %d)\n", old_pid);
-            printf("Stop the service first: sudo systemctl stop nzxt-cam.service\n");
-            printf("Or check status: sudo systemctl status nzxt-cam.service\n");
+            printf("LCD AIO CAM: Error - systemd service is already running (PID %d)\n", old_pid);
+            printf("Stop the service first: sudo systemctl stop aiolcdcam.service\n");
+            printf("Or check status: sudo systemctl status aiolcdcam.service\n");
             return -1; // Fehler: Service läuft bereits
         } else {
             // Andere manuelle Instanz läuft: Beende sie
-            printf("NZXT CAM: Terminating existing manual instance (PID %d)...\n", old_pid);
+            printf("LCD AIO CAM: Terminating existing manual instance (PID %d)...\n", old_pid);
             kill(old_pid, SIGTERM);
             
             // Warte auf saubere Beendigung
@@ -157,12 +157,12 @@ static int check_existing_instance_and_handle(const char *pid_file, int is_servi
             
             // Falls immer noch aktiv, erzwinge Beendigung
             if (kill(old_pid, 0) == 0) {
-                printf("NZXT CAM: Force-killing stubborn manual instance...\n");
+                printf("LCD AIO CAM: Force-killing stubborn manual instance...\n");
                 kill(old_pid, SIGKILL);
                 sleep(1);
             }
             
-            printf("NZXT CAM: Previous manual instance terminated successfully\n");
+            printf("LCD AIO CAM: Previous manual instance terminated successfully\n");
             unlink(pid_file);
             return 0;
         }
@@ -184,7 +184,7 @@ static void write_pid_file(const char *pid_file) {
  * Main daemon loop
  */
 static int run_daemon(display_mode_t mode) {
-    printf("NZXT CAM daemon started (Mode: %d)\n", mode); // Show mode
+    printf("LCD AIO CAM daemon started (Mode: %d)\n", mode); // Show mode
     printf("Sensor data updated every %d.%d seconds\n", 
            DISPLAY_REFRESH_INTERVAL_SEC, DISPLAY_REFRESH_INTERVAL_NSEC / 100000000);
     printf("Daemon now running silently in background...\n\n");
@@ -204,7 +204,7 @@ static int run_daemon(display_mode_t mode) {
  * Zeigt die Hilfe an und erklärt die Verwendung des Programms
  */
 static void show_help(const char *program_name) {
-    printf("NZXT CAM - Complete NZXT Kraken LCD Temperature Monitor\n\n");
+    printf("LCD AIO CAM - Complete NZXT Kraken LCD Temperature Monitor\n\n");
     printf("Usage: %s [MODE] or %s --mode [MODE]\n\n", program_name, program_name);
     printf("Modes:\n");
     printf("  def  - Temperatures only (default, resource-efficient)\n");
@@ -223,10 +223,8 @@ static void show_help(const char *program_name) {
     printf("  %s --mode 3     # With horizontal bars\n\n", program_name);
     printf("The daemon runs in background and updates the LCD every %d.%d seconds.\n",
            DISPLAY_REFRESH_INTERVAL_SEC, DISPLAY_REFRESH_INTERVAL_NSEC / 100000000);
-    printf("To stop: sudo systemctl stop nzxt-cam\n");
-}
-
-/**
+    printf("To stop: sudo systemctl stop aiolcdcam\n");
+}/**
  * Erkennt, ob wir von systemd gestartet wurden
  */
 static int is_started_by_systemd(void) {
@@ -245,17 +243,17 @@ int main(int argc, char *argv[]) {
     }
     
     // Display-Modus parsen - unterstützt beide Formate:
-    // ./nzxt def      oder    ./nzxt --mode def
-    // ./nzxt 1        oder    ./nzxt --mode 1
-    // ./nzxt 2        oder    ./nzxt --mode 2
-    // ./nzxt 3        oder    ./nzxt --mode 3
+    // ./aiolcdcam def      oder    ./aiolcdcam --mode def
+    // ./aiolcdcam 1        oder    ./aiolcdcam --mode 1
+    // ./aiolcdcam 2        oder    ./aiolcdcam --mode 2
+    // ./aiolcdcam 3        oder    ./aiolcdcam --mode 3
     // Standardmodus ist "def" (nur Temperaturen, ressourcenschonend)
     const char *mode_str = "def"; // Standard Modus
     
     if (argc > 1) { // Check if a parameter is provided
         // Check if the first parameter is --mode
         if (strcmp(argv[1], "--mode") == 0) { // --mode parameter
-            // --mode parameter format: ./nzxt --mode def
+            // --mode parameter format: ./aiolcdcam --mode def
             // Check if a mode is specified
             if (argc > 2) {
                 if (strcmp(argv[2], "def") == 0 || 
@@ -275,7 +273,7 @@ int main(int argc, char *argv[]) {
                 mode_str = "def";  // Fallback
             }
         } else {
-            // Direct parameter format: ./nzxt def
+            // Direct parameter format: ./aiolcdcam def
             // Check if the parameter is valid
             if (strcmp(argv[1], "def") == 0 || 
                 strcmp(argv[1], "1") == 0 || 
@@ -372,12 +370,12 @@ int main(int argc, char *argv[]) {
     
     // Cleanup - sende Shutdown-Image falls noch nicht gesendet (nur bei normaler Beendigung)
     if (!shutdown_sent && is_session_initialized()) {
-        const char* shutdown_image = "/opt/nzxt_cam/image/face.png";
-        printf("NZXT CAM: Sending final shutdown image...\n");
+        const char* shutdown_image = "/opt/aiolcdcam/image/face.png";
+        printf("LCD AIO CAM: Sending final shutdown image...\n");
         fflush(stdout);
         
         if (send_image_to_lcd(shutdown_image, KRAKEN_UID)) {
-            printf("NZXT CAM: Final shutdown image sent successfully\n");
+            printf("LCD AIO CAM: Final shutdown image sent successfully\n");
         }
         fflush(stdout);
     }

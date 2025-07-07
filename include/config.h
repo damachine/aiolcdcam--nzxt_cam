@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // =============================================================================
-// NZXT CAM CONFIGURATION
+// LCD AIO CAM CONFIGURATION
 // =============================================================================
 
 // Display Settings
@@ -37,9 +37,9 @@
 
 // Paths and Files
 #define HWMON_PATH "/sys/class/hwmon" // Pfad zu den Hardware-Monitoren
-#define IMAGE_DIR "/opt/nzxt_cam/image" // Verzeichnis für Bilder
-#define IMAGE_PATH "/opt/nzxt_cam/image/cpu_gpu_temp.png" // Pfad zum Bild für CPU/GPU-Temperaturanzeige
-#define PID_FILE "/var/run/nzxt_cam.pid" // PID-Datei für den Daemon
+#define IMAGE_DIR "/opt/aiolcdcam/image" // Verzeichnis für Bilder
+#define IMAGE_PATH "/opt/aiolcdcam/image/cpu_gpu_temp.png" // Pfad zum Bild für CPU/GPU-Temperaturanzeige
+#define PID_FILE "/var/run/aiolcdcam.pid" // PID-Datei für den Daemon
 
 // CoolerControl Settings
 #define DAEMON_ADDRESS "http://localhost:11987" // Adresse des CoolerControl Daemon
