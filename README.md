@@ -1,20 +1,21 @@
-# LCD AIO CAM - Modular C Daemon
+---
+---
+# ⚠️ STOP WORKING HERE ⚠️ 
+
+# Please visit: [https://github.com/damachine/coolerdash](https://github.com/damachine/coolerdash) 
+---
+---
+
+# LCD AIO CAM
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C99](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
 [![Platform](https://img.shields.io/badge/Platform-Linux-green.svg)](https://kernel.org/)
 [![Development Status](https://img.shields.io/badge/Status-Beta-orange.svg)](https://github.com)
 
-High-performance, modular C-based daemon for LCD AIO displays with professional systemd integration and automatic dependency management.
-
 > **⚠️ Beta Notice:** This project is in early development stage. Features may change and bugs are expected. Please report issues and contribute to improve the software.
 
 **👨‍💻 Author:** DAMACHINE ([christkue79@gmail.com](mailto:christkue79@gmail.com))
-
-**📖 Languages / Sprachen / 语言:**
-- **🇺🇸 English**: README.md (this file)
-- **🇩🇪 Deutsch**: [README_DE.md](README_DE.md)
-- **🇨🇳 中文**: [README_ZH.md](README_ZH.md)
 
 ## ✨ Features
 
@@ -27,22 +28,6 @@ High-performance, modular C-based daemon for LCD AIO displays with professional 
 - **✅ Systemd Logs**: Detailed initialization and status messages for professional service management
 - **✅ Intelligent Installation**: Automatic service stop/start during updates via `make install`
 - **🚧 Beta Features**: Active development with regular improvements and bug fixes
-
-## 📑 Table of Contents
-
-- [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [📋 System Requirements](#-system-requirements)
-- [📦 Installation & Dependencies](#-installation--dependencies)
-- [⚙️ Service Management](#️-service-management)
-- [📱 Display Modes & Usage](#-display-modes--usage)
-- [🔧 Configuration](#-configuration)
-- [🛠️ Development & Build](#️-development--build)
-- [🏗️ Project Structure](#️-project-structure)
-- [🎯 Performance Optimizations](#-performance-optimizations)
-- [🎨 Customization](#-customization)
-- [🔍 Debugging](#-debugging)
-- [📄 License](#-license)
 
 ## 🚀 Quick Start
 
@@ -99,7 +84,7 @@ sudo journalctl -u aiolcdcam.service -f
 - **RAM**: < 5 MB (very efficient)
 - **CPU Load**: < 1% (def mode), < 2% (modes 1-3)
 
-### Software Dependencies (Auto-Installed)
+### Software Dependencies
 
 - **cairo**: Graphics rendering library
 - **libcurl**: HTTP client for CoolerControl API
@@ -114,30 +99,12 @@ sudo journalctl -u aiolcdcam.service -f
 3. **Configure your LCD AIO**: Use CoolerControl GUI to detect and configure your device
 4. **Verify API access**: `curl http://localhost:11987/devices` should return your devices
 
-**x86-64-v3 compatibility:**
-- **Intel**: Haswell (2013) and newer
-- **AMD**: Excavator (2015) and newer  
-- Older CPUs: Use `CFLAGS=-march=x86-64` for compatibility
-
 ## 📦 Installation & Dependencies
 
-### One-Command Installation
-
-**🆕 NEW**: `make install` automatically installs all dependencies for any Linux distribution!
-
 ```bash
-# Complete installation in one command (auto-detects Linux distribution)
+# STEP 1:
 sudo make install
 ```
-
-**This automatically:**
-1. Detects your Linux distribution (Arch, Ubuntu, Debian, Fedora, RHEL, openSUSE)
-2. Checks for missing dependencies (cairo, libcurl, gcc, make, pkg-config)
-3. Auto-installs missing dependencies using your distribution's package manager
-4. Builds the program
-5. Installs to `/opt/aiolcdcam/`
-6. Configures systemd service
-7. Starts/restarts the service
 
 ### Supported Distributions (Auto-Detected)
 
@@ -180,21 +147,6 @@ make start      # systemctl start aiolcdcam
 make stop       # systemctl stop aiolcdcam
 make status     # systemctl status aiolcdcam
 make logs       # journalctl -u aiolcdcam -f
-```
-
-**Service logs show:**
-```
-Jul 06 03:06:43 computer aiolcdcam[72998]: Selected mode: def (temperatures only, resource-efficient)
-Jul 06 03:06:43 computer aiolcdcam[72998]: Initializing modules...
-Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ CPU monitor initialized
-Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ GPU monitor initialized
-Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ Coolant monitor initialized
-Jul 06 03:06:43 computer aiolcdcam[72998]: ✓ CoolerControl session initialized
-Jul 06 03:06:43 computer aiolcdcam[72998]: CoolerControl: Connected to Kraken LCD
-Jul 06 03:06:43 computer aiolcdcam[72998]: All modules successfully initialized!
-Jul 06 03:06:43 computer aiolcdcam[72998]: LCD AIO CAM daemon started (Mode: 0)
-Jul 06 03:06:43 computer aiolcdcam[72998]: Sensor data updated every 2.5 seconds
-Jul 06 03:06:43 computer aiolcdcam[72998]: Daemon now running silently in background...
 ```
 
 ## � Display Modes & Usage
@@ -260,18 +212,6 @@ All important settings are located in **`include/config.h`**:
 #define CHANGE_TOLERANCE_USAGE 0.5f
 ```
 
-## 🛠️ Development & Build
-
-### Build Targets
-
-```bash
-make          # Standard C build
-make clean    # Clean up (deletes build/ directory)
-make install  # System installation
-make debug    # Debug build with AddressSanitizer
-make help     # Show all options
-```
-
 ### Adding New Modules
 
 1. Create header: `include/new_module.h`
@@ -319,20 +259,6 @@ aiolcdcam/
 └── Makefile                # 🔨 Build system with auto-dependency installation
 ```
 
-### Features
-
-- **✅ Modular Architecture**: Professional separation of CPU, GPU, coolant, and display logic into separate modules
-- **✅ Efficient Sensor Polling**: Only necessary sensor data is queried depending on mode (def = temperatures only, 1-3 = additional load data)
-- **✅ Central Configuration**: All settings (UUID, paths, colors, layout) in `include/config.h`
-- **✅ 4 Optimized Display Modes**: From simple temperatures to complex load diagrams
-- **✅ Performance-Optimized**: Caching, change detection, minimal I/O operations, mode-dependent resource usage
-- **✅ Native CoolerControl Integration**: REST API communication without Python dependencies
-- **✅ Systemd Logs**: Detailed initialization and status messages for professional service management
-- **✅ Intelligent Installation**: Automatic service stop/start during updates via `make install`
-- **🚧 Beta Features**: Active development with regular improvements and bug fixes
-
-## � Performance Optimizations
-
 ### ✅ Mode-dependent I/O optimization
 
 **Implemented in `src/display.c:draw_combined_image()`:**
@@ -377,13 +303,6 @@ const int needs_update = (
     ...
 );
 ```
-
-### ✅ Modular architecture benefits
-
-- **Separate compilation**: Each module is compiled individually → faster development
-- **Clear responsibilities**: CPU, GPU, coolant, display logic isolated
-- **Central configuration**: All constants in `include/config.h`
-- **Header dependencies**: Clean include structure without circular dependencies
 
 ## 🎨 Customization
 
