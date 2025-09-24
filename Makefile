@@ -1,21 +1,21 @@
-# Makefile für LCD AIO CAM (Standard C-Projektstruktur)
-# LCD AIO CAM - Kraken LCD Temperature Monitor
+# Makefile for LCD AIO CAM (Standard C Project Structure)
+# LCD AIO CAM - AIO LCD Temperature Monitor
 
-# Version
-VERSION = v0.1.1
+# Version (Format: 1.year.month.day.hourminute)
+VERSION = 1.25.07.08.2234
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -std=c99 -march=x86-64-v3 -Iinclude $(shell pkg-config --cflags cairo)
 LIBS = $(shell pkg-config --libs cairo) -lcurl -lm
 TARGET = aiolcdcam
 
-# Verzeichnisse
+# Directories
 SRCDIR = src
 INCDIR = include
 OBJDIR = build
 BINDIR = bin
 
-# Quellcode-Dateien
+# Source code files
 MAIN_SOURCE = $(SRCDIR)/main.c
 MODULES = $(SRCDIR)/cpu_monitor.c $(SRCDIR)/gpu_monitor.c $(SRCDIR)/coolant_monitor.c $(SRCDIR)/display.c $(SRCDIR)/coolercontrol.c
 HEADERS = $(INCDIR)/config.h $(INCDIR)/cpu_monitor.h $(INCDIR)/gpu_monitor.h $(INCDIR)/coolant_monitor.h $(INCDIR)/display.h $(INCDIR)/coolercontrol.h
@@ -26,7 +26,7 @@ SERVICE = systemd/aiolcdcam.service
 MANPAGE = man/aiolcdcam.1
 README = README.md
 
-# Farben für Terminal-Ausgabe
+# Colors for terminal output
 RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
@@ -53,23 +53,22 @@ $(TARGET): $(OBJDIR) $(BINDIR) $(OBJECTS) $(MAIN_SOURCE)
 	@printf "$(BLUE)CFLAGS:$(RESET) $(CFLAGS)\n"
 	@printf "$(BLUE)LIBS:$(RESET) $(LIBS)\n"
 	$(CC) $(CFLAGS) -o $(BINDIR)/$(TARGET) $(MAIN_SOURCE) $(OBJECTS) $(LIBS)
-	@printf "$(ICON_WARNING) $(YELLOW)Building without legacy version...$(RESET)\n"
-	@printf "$(ICON_SUCCESS) $(GREEN)Standard C build successful: $(BINDIR)/$(TARGET)$(RESET)\n"
+	@printf "$(ICON_SUCCESS) $(GREEN)Build successful: $(BINDIR)/$(TARGET)$(RESET)\n"
 
-# Build-Verzeichnis erstellen
+# Create build directory
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
-# Bin-Verzeichnis erstellen
+# Create bin directory
 $(BINDIR):
 	@mkdir -p $(BINDIR)
 
-# Objektdateien kompilieren (mit korrekten Pfaden)
+# Compile object files (with correct paths)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/%.h $(INCDIR)/config.h | $(OBJDIR)
 	@printf "$(ICON_BUILD) $(YELLOW)Compiling module: $<$(RESET)\n"
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Dependencies für Header-Änderungen
+# Dependencies for header changes
 $(OBJECTS): $(HEADERS)
 
 # Clean Target
@@ -219,17 +218,17 @@ install: check-deps-for-install $(TARGET)
 	@printf "\n"
 	@printf "$(ICON_INFO) $(CYAN)Creating directories...$(RESET)\n"
 	sudo mkdir -p /opt/aiolcdcam/bin
-	sudo mkdir -p /opt/aiolcdcam/man
-	sudo mkdir -p /opt/aiolcdcam/image
+	sudo mkdir -p /opt/aiolcdcam/images
 	@printf "$(ICON_SUCCESS) $(GREEN)Directories created$(RESET)\n"
 	@printf "\n"
 	@printf "$(ICON_INFO) $(CYAN)Copying files...$(RESET)\n"
 	sudo cp $(BINDIR)/$(TARGET) /opt/aiolcdcam/bin/
 	sudo chmod +x /opt/aiolcdcam/bin/$(TARGET)
-	sudo cp image/face.png /opt/aiolcdcam/image/ 2>/dev/null || true
+	sudo cp images/face.png /opt/aiolcdcam/images/ 2>/dev/null || true
 	sudo cp $(README) /opt/aiolcdcam/
 	@printf "  $(GREEN)→$(RESET) Program: /opt/aiolcdcam/bin/$(TARGET)\n"
-	@printf "  $(GREEN)→$(RESET) Shutdown image: /opt/aiolcdcam/image/face.png\n"
+	@printf "  $(GREEN)→$(RESET) Shutdown image: /opt/aiolcdcam/images/face.png\n"
+	@printf "  $(GREEN)→$(RESET) Sensor image: will be created at runtime as aiolcdcam.png\n"
 	@printf "  $(GREEN)→$(RESET) README: /opt/aiolcdcam/README.md\n"
 	@printf "\n"
 	@printf "$(ICON_SERVICE) $(CYAN)Installing service & documentation...$(RESET)\n"
@@ -280,14 +279,12 @@ uninstall:
 	sudo rm -f /etc/systemd/system/aiolcdcam.service
 	sudo rm -f /usr/share/man/man1/aiolcdcam.1
 	sudo rm -f /opt/aiolcdcam/README.md
-	sudo rm -rf /opt/aiolcdcam/man/
 	sudo rm -f /opt/aiolcdcam/bin/$(TARGET)
 	sudo rm -rf /opt/aiolcdcam/bin/
 	@printf "  $(RED)✗$(RESET) Service: /etc/systemd/system/aiolcdcam.service\n"
 	@printf "  $(RED)✗$(RESET) Manual: /usr/share/man/man1/aiolcdcam.1\n"
 	@printf "  $(RED)✗$(RESET) Program: /opt/aiolcdcam/bin/$(TARGET)\n"
 	@printf "  $(RED)✗$(RESET) README: /opt/aiolcdcam/README.md\n"
-	@printf "  $(RED)✗$(RESET) Documentation: /opt/aiolcdcam/man/\n"
 	@printf "\n"
 	@printf "$(ICON_INFO) $(CYAN)Updating system...$(RESET)\n"
 	sudo mandb -q
@@ -295,7 +292,7 @@ uninstall:
 	@printf "\n"
 	@printf "$(ICON_SUCCESS) $(WHITE)═══ UNINSTALLATION COMPLETE ═══$(RESET)\n"
 	@printf "\n"
-	@printf "$(ICON_INFO) $(BLUE)Note:$(RESET) /opt/aiolcdcam/image/ remains (may contain images)\n"
+	@printf "$(ICON_INFO) $(BLUE)Note:$(RESET) /opt/aiolcdcam/images/ remains (may contain images)\n"
 	@printf "\n"
 
 # Debug Build
