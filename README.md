@@ -1,3 +1,11 @@
+---
+---
+# ⚠️ STOP WORKING HERE ⚠️ 
+
+# Please visit: [https://github.com/damachine/coolerdash](https://github.com/damachine/coolerdash) 
+---
+---
+
 # LCD AIO CAM - For CoolerControl
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
