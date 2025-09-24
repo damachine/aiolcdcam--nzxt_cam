@@ -358,10 +358,6 @@ MIT License - See LICENSE file for details.
 
 If you find LCD AIO CAM useful and want to support its development:
 
-### 🪙 Cryptocurrency Donations:
-- **Bitcoin (BTC)**: `13WjpWQMGG5sg3vTJJnCX3cXzwf2vZddKo`
-- **Dogecoin (DOGE)**: `DRSY4cA8eCALn819MjWLbwaePFNti9oS3y`
-
 ### 🤝 Other Ways to Support:
 - ⭐ **Star this repository** on GitHub
 - 🐛 **Report bugs** and suggest improvements  
