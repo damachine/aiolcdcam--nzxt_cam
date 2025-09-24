@@ -372,5 +372,3 @@ If you find LCD AIO CAM useful and want to support its development:
 **👨‍💻 Developed by DAMACHINE for maximum efficiency, stability and professional code structure.**  
 **📧 Contact:** [christkue79@gmail.com](mailto:christkue79@gmail.com)  
 **📖 Manual:** `man aiolcdcam`  
-**📍 Binary:** `/opt/aiolcdcam/bin/aiolcdcam` (also available as `aiolcdcam`)  
-**💝 Donate:** BTC: `13WjpWQMGG5sg3vTJJnCX3cXzwf2vZddKo` | DOGE: `DRSY4cA8eCALn819MjWLbwaePFNti9oS3y`
