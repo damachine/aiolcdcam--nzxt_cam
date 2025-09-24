@@ -1,3 +1,11 @@
+---
+---
+# ⚠️ STOP WORKING HERE ⚠️ 
+
+# Please visit: [https://github.com/damachine/coolerdash](https://github.com/damachine/coolerdash) 
+---
+---
+
 # NZXT Kraken LCD Temperature Monitor
 
 Ein C-basierter Daemon, der CPU- und GPU-Temperaturen überwacht und diese grafisch auf dem LCD-Display eines NZXT Kraken Wasserkühlers anzeigt.
